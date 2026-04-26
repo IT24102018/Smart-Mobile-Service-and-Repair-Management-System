@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Shop - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body class="auth-page">
+    <!-- HEADER WITH LOGO AND NAVIGATION -->
+    <header>
+        <div class="logo">
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix</h1>
+        </div>
+        <nav>
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/users/dashboard}">Dashboard</a>
+            <a th:href="@{/shop}">Shop</a>
+            <a th:href="@{/contact}">Contact Us</a>
+            <a th:href="@{/users/logout}">Logout</a>
+        <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="shop-container">
+            <div class="shop-header">
+                <h2>&#128722; Mobix Shop</h2>
+                <p>Browse our collection of brand new phones and accessories</p>
+            </div>
+
+            <!-- Brand New Phones Section -->
+            <section class="product-section">
+                <div class="section-header">
+                    <h3>&#128241; Brand New Phones</h3>
+                    <a th:href="@{/shop/phones}" class="view-all">View All</a>
+                </div>
+                <div class="product-grid">
+                    <div th:each="phone : ${phones}" class="product-card">
+                        <div class="product-image">
+                            <img th:src="${phone.imageUrl}" th:alt="${phone.name}">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-brand" th:text="${phone.brand}">Brand</span>
+                            <h4 th:text="${phone.name}">Product Name</h4>
+                            <p class="product-description" th:text="${phone.description}">Description</p>
+                            <div class="warranty-badge">
+                                <span>&#10003;</span>
+                                <span th:text="${phone.warrantyMonths} + ' Months Warranty'"></span>
+                            </div>
+                            <div class="stock-status"
+                                th:classappend="${phone.stock != null and phone.stock > 0} ? 'in-stock' : 'out-stock'"
+                                th:text="${phone.stock != null and phone.stock > 0} ? 'In Stock' : 'Out of Stock'">
+                                In Stock
+                            </div>
+                            <div class="product-footer">
+                                <span class="product-price">Rs. <span th:text="${phone.price}">0.00</span></span>
+                                <a th:if="${phone.stock != null and phone.stock > 0}"
+                                    th:href="@{/order/checkout/{productId}(productId=${phone.id})}"
+                                    class="btn-buy-now">Buy Now</a>
+                                <span th:if="${phone.stock == null or phone.stock <= 0}" class="btn-buy-now disabled">Out of Stock</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accessories Section -->
+            <section class="product-section">
+                <div class="section-header">
+                    <h3>&#128295; Accessories</h3>
+                    <a th:href="@{/shop/accessories}" class="view-all">View All</a>
+                </div>
+                <div class="product-grid">
+                    <div th:each="accessory : ${accessories}" class="product-card">
+                        <div class="product-image">
+                            <img th:src="${accessory.imageUrl}" th:alt="${accessory.name}">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-brand" th:text="${accessory.brand}">Brand</span>
+                            <h4 th:text="${accessory.name}">Product Name</h4>
+                            <p class="product-description" th:text="${accessory.description}">Description</p>
+                            <div class="warranty-badge">
+                                <span>&#10003;</span>
+                                <span th:text="${accessory.warrantyMonths} + ' Months Warranty'"></span>
+                            </div>
+                            <div class="stock-status"
+                                th:classappend="${accessory.stock != null and accessory.stock > 0} ? 'in-stock' : 'out-stock'"
+                                th:text="${accessory.stock != null and accessory.stock > 0} ? 'In Stock' : 'Out of Stock'">
+                                In Stock
+                            </div>
+                            <div class="product-footer">
+                                <span class="product-price">Rs. <span th:text="${accessory.price}">0.00</span></span>
+                                <div>
+                                    <a th:if="${accessory.stock != null and accessory.stock > 0}"
+                                        th:href="@{/order/checkout/{productId}(productId=${accessory.id})}"
+                                        class="btn-buy-now">Buy Now</a>
+                                    <span th:if="${accessory.stock == null or accessory.stock <= 0}" class="btn-buy-now disabled">Out of Stock</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+    </footer>
+</body>
+
+</html>
