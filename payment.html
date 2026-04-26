@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="auth-page">
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix</h1>
+    </div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/users/dashboard}">Dashboard</a>
+        <a th:href="@{/shop}">Shop</a>
+        <a th:href="@{/contact}">Contact Us</a>
+        <a th:href="@{/users/logout}">Logout</a>
+    <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+</header>
+
+<main>
+    <div class="payment-container">
+        <h2>&#128179; Payment</h2>
+        
+        <p th:if="${error}" class="error-message">[[${error}]]</p>
+
+        <div class="payment-grid">
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h3>Order Details</h3>
+                <div class="order-info">
+                    <p><strong>Order ID:</strong> #<span th:text="${order.id}">000</span></p>
+                    <p><strong>Product:</strong> <span th:text="${order.productName}">Product</span></p>
+                    <p><strong>Amount:</strong> Rs. <span th:text="${order.totalAmount}">0.00</span></p>
+                    <p><strong>Warranty Period:</strong> <span th:text="${order.warrantyMonths != null ? order.warrantyMonths : 12}">12</span> months</p>
+                    <p><strong>Warranty Start Date:</strong>
+                        <span th:if="${order.paymentDate != null}" th:text="${#temporals.format(order.paymentDate, 'dd MMM yyyy')}">Start Date</span>
+                        <span th:if="${order.paymentDate == null}">On payment date</span>
+                    </p>
+                    <p><strong>Warranty Expiry Date:</strong>
+                        <span th:if="${order.warrantyExpiryDate != null}" th:text="${#temporals.format(order.warrantyExpiryDate, 'dd MMM yyyy')}">Expiry Date</span>
+                        <span th:if="${order.warrantyExpiryDate == null}" th:text="${#temporals.format(order.orderDate.plusMonths(order.warrantyMonths != null ? order.warrantyMonths : 12), 'dd MMM yyyy')} + ' (estimated)'"></span>
+                    </p>
+                    <p><strong>Payment Method:</strong> 
+                        <span th:if="${order.paymentMethod == 'CREDIT_CARD'}">Credit Card</span>
+                        <span th:if="${order.paymentMethod == 'DEBIT_CARD'}">Debit Card</span>
+                        <span th:if="${order.paymentMethod == 'CASH_ON_DELIVERY'}">Cash on Delivery</span>
+                    </p>
+                </div>
+                <div class="customer-info">
+                    <h4>Shipping To:</h4>
+                    <p th:text="${order.customerName}">Name</p>
+                    <p th:text="${order.customerPhone}">Phone</p>
+                    <p th:text="${order.shippingAddress}">Address</p>
+                </div>
+            </div>
+
+            <!-- Payment Form (Only for Card Payments) -->
+            <div class="payment-form" th:if="${order.paymentMethod != 'CASH_ON_DELIVERY'}">
+                <h3>Card Details</h3>
+                <form th:action="@{/order/payment/{orderId}(orderId=${order.id})}" method="post">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Card Holder Name</label>
+                        <input type="text" name="cardHolder" placeholder="Name on card" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="text" name="expiryDate" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" name="cvv" placeholder="123" maxlength="3" required>
+                        </div>
+                    </div>
+
+                    <div class="secure-payment">
+                        <span>&#128274; Secure Payment</span>
+                        <p>Your payment information is encrypted and secure.</p>
+                    </div>
+
+                    <button type="submit" class="btn-pay-now">Pay Rs. <span th:text="${order.totalAmount}">0.00</span> Now</button>
+                </form>
+            </div>
+
+            <!-- Cash on Delivery Confirmation -->
+            <div class="payment-form cod-form" th:if="${order.paymentMethod == 'CASH_ON_DELIVERY'}">
+                <h3>Cash on Delivery</h3>
+                <div class="cod-info">
+                    <p>&#128666; Your order will be delivered to:</p>
+                    <p class="cod-address" th:text="${order.shippingAddress}">Address</p>
+                    <p>You will pay Rs. <span th:text="${order.totalAmount}">0.00</span> when the order is delivered.</p>
+                </div>
+                <form th:action="@{/order/payment/{orderId}(orderId=${order.id})}" method="post">
+                    <input type="hidden" name="cardNumber" value="COD">
+                    <input type="hidden" name="cardHolder" value="COD">
+                    <input type="hidden" name="expiryDate" value="COD">
+                    <input type="hidden" name="cvv" value="COD">
+                    <button type="submit" class="btn-pay-now">Confirm Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+</footer>
+</body>
+</html>
+

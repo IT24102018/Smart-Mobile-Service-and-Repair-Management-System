@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Receipt - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="auth-page">
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix</h1>
+    </div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/users/dashboard}">Dashboard</a>
+        <a th:href="@{/shop}">Shop</a>
+        <a th:href="@{/contact}">Contact Us</a>
+        <a th:href="@{/users/logout}">Logout</a>
+    
+    
+</header>
+
+<main>
+    <div class="receipt-container">
+        <div class="receipt-card" id="receipt">
+            <!-- Receipt Header -->
+            <div class="receipt-header">
+                <div class="receipt-logo">
+                    <h2>&#128241; MOBIX</h2>
+                    <p>Mobile Shop & Repair Services</p>
+                </div>
+                <div class="receipt-title">
+                    <h3>PAYMENT RECEIPT</h3>
+                    <span class="receipt-status">PAID</span>
+                </div>
+            </div>
+
+            <!-- Receipt Info -->
+            <div class="receipt-info">
+                <div class="receipt-row">
+                    <span class="label">Receipt No:</span>
+                    <span class="value">RCP-<span th:text="${order.id}">00000</span></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Order ID:</span>
+                    <span class="value">ORD-<span th:text="${order.id}">00000</span></span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Date:</span>
+                    <span class="value" th:text="${#temporals.format(order.paymentDate, 'dd MMMM yyyy')}">Date</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Time:</span>
+                    <span class="value" th:text="${#temporals.format(order.paymentDate, 'HH:mm:ss')}">Time</span>
+                </div>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="receipt-section">
+                <h4>Customer Information</h4>
+                <div class="receipt-row">
+                    <span class="label">Name:</span>
+                    <span class="value" th:text="${order.customerName}">Customer Name</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Email:</span>
+                    <span class="value" th:text="${order.customerEmail}">Email</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Phone:</span>
+                    <span class="value" th:text="${order.customerPhone}">Phone</span>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="receipt-section">
+                <h4>Product Details</h4>
+                <table class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td th:text="${order.productName}">Product Name</td>
+                            <td th:text="${order.quantity}">1</td>
+                            <td>Rs. <span th:text="${order.price}">0.00</span></td>
+                            <td>Rs. <span th:text="${order.totalAmount}">0.00</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="receipt-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>Rs. <span th:text="${order.totalAmount}">0.00</span></span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax (0%):</span>
+                    <span>$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping:</span>
+                    <span>FREE</span>
+                </div>
+                <div class="summary-row total">
+                    <span>TOTAL PAID:</span>
+                    <span>Rs. <span th:text="${order.totalAmount}">0.00</span></span>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="receipt-section">
+                <h4>Payment Information</h4>
+                <div class="receipt-row">
+                    <span class="label">Method:</span>
+                    <span class="value">
+                        <span th:if="${order.paymentMethod == 'CREDIT_CARD'}">Credit Card</span>
+                        <span th:if="${order.paymentMethod == 'DEBIT_CARD'}">Debit Card</span>
+                        <span th:if="${order.paymentMethod == 'CASH_ON_DELIVERY'}">Cash on Delivery</span>
+                    </span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Status:</span>
+                    <span class="value status-paid" th:text="${order.paymentStatus}">PAID</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Payment Date:</span>
+                    <span class="value" th:text="${#temporals.format(order.paymentDate, 'dd MMM yyyy')}">Date</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Transaction ID:</span>
+                    <span class="value">TXN-<span th:text="${order.id}">00000</span>-<span th:text="${#temporals.format(order.paymentDate, 'yyyyMMdd')}">Date</span></span>
+                </div>
+            </div>
+
+            <div class="receipt-section">
+                <h4>Warranty Information</h4>
+                <div class="receipt-row">
+                    <span class="label">Warranty Period:</span>
+                    <span class="value"><span th:text="${order.warrantyMonths != null ? order.warrantyMonths : 12}">12</span> months</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Warranty Start Date:</span>
+                    <span class="value" th:text="${#temporals.format(order.paymentDate, 'dd MMM yyyy')}">Start Date</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="label">Warranty Expiry Date:</span>
+                    <span class="value" th:if="${order.warrantyExpiryDate != null}" th:text="${#temporals.format(order.warrantyExpiryDate, 'dd MMM yyyy')}">Expiry Date</span>
+                    <span class="value" th:if="${order.warrantyExpiryDate == null}" th:text="${#temporals.format(order.paymentDate.toLocalDate().plusMonths(order.warrantyMonths != null ? order.warrantyMonths : 12), 'dd MMM yyyy')}">Expiry Date</span>
+                </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="receipt-section">
+                <h4>Shipping Address</h4>
+                <p class="receipt-address" th:text="${order.shippingAddress}">Address</p>
+            </div>
+
+            <!-- Receipt Footer -->
+            <div class="receipt-footer">
+                <p class="thank-you">Thank you for shopping with Mobix!</p>
+                <p class="contact">For any queries, contact us at support@mobix.com</p>
+                <div class="barcode">
+                    <span>&#9646;&#9646;&#9646;&#9646; <span th:text="${order.id}">00000</span> &#9646;&#9646;&#9646;&#9646;</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipt Actions -->
+        <div class="receipt-actions">
+            <button onclick="printReceipt()" class="btn-print">&#128424; Print Receipt</button>
+            <a th:href="@{/shop}" class="btn-continue-shopping">Continue Shopping</a>
+            <a th:href="@{/users/dashboard}" class="btn-dashboard">Go to Dashboard</a>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+</footer>
+
+<script>
+    function printReceipt() {
+        window.print();
+    }
+</script>
+</body>
+</html>
+

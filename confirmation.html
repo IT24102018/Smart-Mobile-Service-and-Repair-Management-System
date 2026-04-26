@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmed - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="auth-page">
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix</h1>
+    </div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/users/dashboard}">Dashboard</a>
+        <a th:href="@{/shop}">Shop</a>
+        <a th:href="@{/contact}">Contact Us</a>
+        <a th:href="@{/users/logout}">Logout</a>
+    <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+</header>
+
+<main>
+    <div class="confirmation-container">
+        <div class="confirmation-card">
+            <div class="success-icon">&#9989;</div>
+            <h2>Order Confirmed!</h2>
+            <p class="confirmation-message">Thank you for your purchase. Your order has been successfully placed.</p>
+
+            <div class="order-details">
+                <h3>Order Details</h3>
+                <div class="detail-row">
+                    <span>Order ID:</span>
+                    <strong>#<span th:text="${order.id}">000</span></strong>
+                </div>
+                <div class="detail-row">
+                    <span>Product:</span>
+                    <strong th:text="${order.productName}">Product</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Amount Paid:</span>
+                    <strong>Rs. <span th:text="${order.totalAmount}">0.00</span></strong>
+                </div>
+                <div class="detail-row">
+                    <span>Payment Status:</span>
+                    <strong class="status-paid" th:text="${order.paymentStatus}">PAID</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Order Status:</span>
+                    <strong class="status-confirmed" th:text="${order.orderStatus}">CONFIRMED</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Order Date:</span>
+                    <strong th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy HH:mm')}">Date</strong>
+                </div>
+            </div>
+
+            <div class="shipping-info">
+                <h3>Shipping Information</h3>
+                <p><strong>Name:</strong> <span th:text="${order.customerName}">Name</span></p>
+                <p><strong>Phone:</strong> <span th:text="${order.customerPhone}">Phone</span></p>
+                <p><strong>Address:</strong> <span th:text="${order.shippingAddress}">Address</span></p>
+            </div>
+
+            <div class="confirmation-actions">
+                <a th:href="@{/order/receipt/{orderId}(orderId=${order.id})}" class="btn-receipt">&#128424; View Receipt</a>
+                <a th:href="@{/shop}" class="btn-continue">Continue Shopping</a>
+                <a th:href="@{/users/dashboard}" class="btn-dashboard">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+</footer>
+</body>
+</html>
+
