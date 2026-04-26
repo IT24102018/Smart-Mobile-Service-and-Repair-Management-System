@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Provide Feedback - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .feedback-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .rating-stars {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .rating-stars input[type="radio"] {
+            display: none;
+        }
+
+        .rating-stars label {
+            font-size: 30px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .rating-stars input[type="radio"]:checked~label {
+            color: #ffc107;
+        }
+
+        .rating-stars label:hover,
+        .rating-stars label:hover~label {
+            color: #ffc107;
+        }
+
+        .feedback-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .feedback-form textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .feedback-form input[type="text"],
+        .feedback-form input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-submit {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #1976D2;
+        }
+
+        .drop-zone {
+            border: 2px dashed #90a4ae;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            background: #f8fbff;
+            color: #455a64;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
+
+        .drop-zone p {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .drop-zone small {
+            display: block;
+            margin-top: 8px;
+            color: #607d8b;
+        }
+
+        .preview-image {
+            max-width: 180px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix</h1>
+        </div>
+        <nav>
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/shop}">Shop</a>
+            <a th:href="@{/contact}">Contact Us</a>
+            <!-- Dynamically show login/dashboard based on session -->
+            <a th:if="${session.userEmail == null}" th:href="@{/users/login}">Login</a>
+            <a th:if="${session.userEmail != null}" th:href="@{/users/dashboard}">Dashboard</a>
+            <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="feedback-container">
+            <h2>We Value Your Feedback!</h2>
+            <p style="text-align: center; margin-bottom: 20px;">Let us know how we did. Your opinion helps us improve.
+            </p>
+
+            <p th:if="${errorMessage}" class="error-message">[[${errorMessage}]]</p>
+
+            <form th:action="@{/reviews/add}" method="post" class="feedback-form" enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label for="feedbackType">Feedback For</label>
+                    <select id="feedbackType" name="feedbackType" onchange="toggleTechnicianField()" required>
+                        <option value="GENERAL" th:selected="${feedbackType == null || feedbackType == 'GENERAL'}">Mobix Service</option>
+                        <option value="TECHNICIAN" th:selected="${feedbackType == 'TECHNICIAN'}">Technician</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="technicianGroup" style="display:none;">
+                    <label for="technicianName">Select Technician</label>
+                    <select id="technicianName" name="technicianName">
+                        <option value="">Choose technician</option>
+                        <option th:each="tech : ${technicians}" th:value="${tech}" th:text="${tech}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group text-center" style="text-align: center;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Rate your experience</label>
+                    <div class="rating-stars">
+                        <!-- Reverse order for CSS sibling selector logic -->
+                        <input type="radio" id="star5" name="rating" value="5" th:checked="${rating == 5}" required />
+                        <label for="star5" title="5 stars">&#9733;</label>
+
+                        <input type="radio" id="star4" name="rating" value="4" th:checked="${rating == 4}" />
+                        <label for="star4" title="4 stars">&#9733;</label>
+
+                        <input type="radio" id="star3" name="rating" value="3" th:checked="${rating == 3}" />
+                        <label for="star3" title="3 stars">&#9733;</label>
+
+                        <input type="radio" id="star2" name="rating" value="2" th:checked="${rating == 2}" />
+                        <label for="star2" title="2 stars">&#9733;</label>
+
+                        <input type="radio" id="star1" name="rating" value="1" th:checked="${rating == 1}" />
+                        <label for="star1" title="1 star">&#9733;</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Email Address (Optional)</label>
+                    <input type="email" id="userEmail" name="userEmail" th:value="${userEmail}"
+                        placeholder="Leave blank to remain anonymous">
+                </div>
+
+                <div class="form-group">
+                    <label for="comment">Your Comments</label>
+                    <textarea id="comment" name="comment" required
+                        placeholder="Tell us what you loved or what we can do better..." th:text="${comment}"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Upload Photo (Optional)</label>
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" id="image" name="image" accept="image/*" hidden>
+                        <p>Drag and drop image here</p>
+                        <small>or click to select an image from your computer</small>
+                    </div>
+                    <small>You can upload screenshot/photo related to your feedback.</small>
+                    <div id="feedbackImagePreview" style="margin-top: 12px;"></div>
+                </div>
+
+                <button type="submit" class="btn-submit">Submit Feedback</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+    </footer>
+
+    <script>
+        function toggleTechnicianField() {
+            const feedbackType = document.getElementById('feedbackType').value;
+            const technicianGroup = document.getElementById('technicianGroup');
+            const technicianName = document.getElementById('technicianName');
+
+            if (feedbackType === 'TECHNICIAN') {
+                technicianGroup.style.display = 'block';
+                technicianName.required = true;
+            } else {
+                technicianGroup.style.display = 'none';
+                technicianName.required = false;
+                technicianName.value = '';
+            }
+        }
+
+        function previewFeedbackImage(input) {
+            const preview = document.getElementById('feedbackImagePreview');
+            preview.innerHTML = '';
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        const dropZone = document.getElementById('dropZone');
+        const imageInput = document.getElementById('image');
+
+        dropZone.addEventListener('click', () => imageInput.click());
+
+        imageInput.addEventListener('change', () => previewFeedbackImage(imageInput));
+
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.classList.remove('drag-over');
+
+            const files = event.dataTransfer.files;
+            if (files && files.length > 0) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(files[0]);
+                imageInput.files = dataTransfer.files;
+                previewFeedbackImage(imageInput);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', toggleTechnicianField);
+    </script>
+</body>
+
+</html>

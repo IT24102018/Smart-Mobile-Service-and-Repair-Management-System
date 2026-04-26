@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Extend Warranty - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/warranty-request.css">
+</head>
+<body class="auth-page">
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix</h1>
+    </div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/users/dashboard}">Dashboard</a>
+        <a th:href="@{/shop}">Shop</a>
+        <a th:href="@{/contact}">Contact Us</a>
+        <a th:href="@{/users/logout}">Logout</a>
+    <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+</header>
+
+<main>
+    <div class="warranty-request-container">
+        <div class="warranty-header">
+            <h2>&#128737; Extend Your Warranty</h2>
+            <p>Get additional warranty coverage for your product</p>
+        </div>
+
+        <div class="warranty-alert" th:if="${warrantyAlert}">
+            [[${warrantyAlert}]]
+        </div>
+
+        <div class="order-summary-card" th:if="${order != null}">
+            <h3>Order Summary</h3>
+            <div class="order-details">
+                <div class="detail-row">
+                    <span class="label">Order ID:</span>
+                    <span class="value">#<span th:text="${order.id}"></span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Product:</span>
+                    <span class="value" th:text="${order.productName}">Product Name</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Current Warranty:</span>
+                    <span class="value"><span th:text="${product.warrantyMonths}"></span> Months</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="no-order-message" th:if="${order == null}">
+            <p>&#128737; Order not found or invalid.</p>
+            <a th:href="@{/users/dashboard}" class="btn-back">Back to Dashboard</a>
+        </div>
+
+        <div class="request-form-card" th:if="${order != null and (blockRequest == null or !blockRequest)}">
+            <h3>Warranty Extension Details</h3>
+            
+            <form th:action="@{/warranty/request/submit}" method="post">
+                <input type="hidden" name="orderId" th:value="${order.id}">
+                
+                <div class="form-group">
+                    <label>Extension Period (Months)</label>
+                    <select name="extensionMonths" id="extensionMonths" required onchange="calculateFee()">
+                        <option value="">Select extension period</option>
+                        <option value="6">+6 Months</option>
+                        <option value="12">+12 Months (1 Year)</option>
+                        <option value="18">+18 Months</option>
+                        <option value="24">+24 Months (2 Years)</option>
+                    </select>
+                    <small class="form-help">Choose how many additional months you want to add</small>
+                </div>
+
+                <div class="fee-calculation" id="feeCalculation" style="display: none;">
+                    <div class="calculation-row">
+                        <span>Current Warranty:</span>
+                        <span id="currentWarranty"><span th:text="${product.warrantyMonths}"></span> months</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Extension:</span>
+                        <span id="extensionDisplay">+0 months</span>
+                    </div>
+                    <div class="calculation-row total">
+                        <span>Total Warranty:</span>
+                        <span id="totalWarranty"><span th:text="${product.warrantyMonths}"></span> months</span>
+                    </div>
+                    <div class="calculation-row fee">
+                        <span>Extension Fee:</span>
+                        <span id="extensionFee">$0.00</span>
+                    </div>
+                    <p class="fee-note">* Fee: $10.00 per month</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="CREDIT_CARD" checked>
+                            <span>&#128179; Credit Card</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="DEBIT_CARD">
+                            <span>&#128179; Debit Card</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY">
+                            <span>&#128176; Cash on Delivery</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit-request">Submit Request</button>
+                    <a th:href="@{/users/dashboard}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="warranty-info-box">
+            <h4>&#128161; Warranty Extension Benefits</h4>
+            <ul>
+                <li>Extended protection for your product</li>
+                <li>Covers manufacturing defects</li>
+                <li>Free repair services</li>
+                <li>24/7 customer support</li>
+                <li>Genuine replacement parts</li>
+            </ul>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+</footer>
+
+<script th:inline="javascript">
+    const warrantyAlertText = /*[[${warrantyAlert}]]*/ null;
+    if (warrantyAlertText !== null && warrantyAlertText !== '') {
+        alert(warrantyAlertText);
+    }
+
+    function calculateFee() {
+        const extensionMonths = parseInt(document.getElementById('extensionMonths').value) || 0;
+        const currentWarranty = /*[[${product.warrantyMonths}]]*/ 12;
+        const feePerMonth = 10.00;
+        
+        if (extensionMonths > 0) {
+            document.getElementById('feeCalculation').style.display = 'block';
+            document.getElementById('extensionDisplay').textContent = '+' + extensionMonths + ' months';
+            document.getElementById('totalWarranty').textContent = (currentWarranty + extensionMonths) + ' months';
+            document.getElementById('extensionFee').textContent = '$' + (extensionMonths * feePerMonth).toFixed(2);
+        } else {
+            document.getElementById('feeCalculation').style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>
+
