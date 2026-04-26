@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Technician Dashboard - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin-warranty.css">
+    <style>
+        .tech-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tech-filters a {
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background-color: #f0f0f0;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .tech-filters a:hover {
+            background-color: #e0e0e0;
+        }
+
+        .tech-filters a.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body class="auth-page">
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix Technician</h1>
+        </div>
+        <nav>
+            <a th:href="@{/technician/dashboard}">Dashboard</a>
+            <a th:href="@{/}">View Site</a>
+            <a th:href="@{/technician/logout}">Logout</a>
+        <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="admin-warranty-container">
+            <div class="admin-header">
+                <h2>&#128104;&#8205;&#128295; Technician Dashboard</h2>
+                <p>Welcome, <span th:text="${technicianEmail}">Technician</span></p>
+            </div>
+
+            <!-- Technician Filters -->
+            <div class="tech-filters">
+                <a th:href="@{/technician/dashboard(type='Screen Technician')}"
+                    th:classappend="${selectedType == 'Screen Technician' ? 'active' : ''}">Screen Technician</a>
+                <a th:href="@{/technician/dashboard(type='Battery Technician')}"
+                    th:classappend="${selectedType == 'Battery Technician' ? 'active' : ''}">Battery Technician</a>
+                <a th:href="@{/technician/dashboard(type='Software Technician')}"
+                    th:classappend="${selectedType == 'Software Technician' ? 'active' : ''}">Software Technician</a>
+                <a th:href="@{/technician/dashboard(type='Hardware Technician')}"
+                    th:classappend="${selectedType == 'Hardware Technician' ? 'active' : ''}">Hardware Technician</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(requests)}" class="no-requests">
+                <div class="no-requests-icon">&#128223;</div>
+                <h3>No Assigned Requests</h3>
+                <p>There are no repair requests assigned to you at the moment.</p>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(requests)}" class="requests-table-container">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer Info</th>
+                            <th>Device</th>
+                            <th>Problem</th>
+                            <th>Assigned To</th>
+                            <th>Status & Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="request : ${requests}"
+                            th:class="${'status-' + #strings.toLowerCase(request.status)}">
+                            <td>#<span th:text="${request.id}"></span></td>
+                            <td>
+                                <strong th:text="${request.customerName}"></strong>
+                                <br><small th:text="${request.customerEmail}"></small>
+                                <br><span th:text="${request.contactNumber}"></span>
+                            </td>
+                            <td>
+                                <strong th:text="${request.mobileBrand + ' ' + request.mobileModel}"></strong>
+                                <br><small>Year: <span th:text="${request.year}"></span></small>
+                                <div th:if="${request.imagePath != null}">
+                                    <a th:href="${request.imagePath}" target="_blank" class="btn-service"
+                                        style="padding: 2px 5px; font-size: 0.8em; margin-top: 5px;">View Image</a>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;"
+                                    th:title="${request.problemDescription}" th:text="${request.problemDescription}">
+                                </div>
+                            </td>
+                            <td>
+                                <span th:if="${request.assignedTechnician}" th:text="${request.assignedTechnician}"
+                                    style="font-weight:bold; color:#0056b3;"></span>
+                                <span th:unless="${request.assignedTechnician}" style="color:#888;">Unassigned</span>
+                            </td>
+                            <td>
+                                <div th:if="${request.status != 'COMPLETED' && request.status != 'CANCELLED'}">
+                                    <form th:action="@{/technician/repair-requests/update}" method="post">
+                                        <input type="hidden" name="requestId" th:value="${request.id}">
+                                        <select name="status"
+                                            style="padding: 5px; border-radius: 4px; border: 1px solid #ddd; width: 100%; margin-bottom: 5px;">
+                                            <option value="APPROVED" th:selected="${request.status == 'APPROVED'}">
+                                                APPROVED</option>
+                                            <option value="IN_PROGRESS"
+                                                th:selected="${request.status == 'IN_PROGRESS'}">IN_PROGRESS</option>
+                                            <option value="COMPLETED" th:selected="${request.status == 'COMPLETED'}">
+                                                COMPLETED</option>
+                                        </select>
+                                        <button type="submit" class="btn-service"
+                                            style="width: 100%; padding: 5px;">Update</button>
+                                    </form>
+                                </div>
+                                <span th:if="${request.status == 'COMPLETED' || request.status == 'CANCELLED'}"
+                                    class="completed">
+                                    <span th:if="${request.status == 'COMPLETED'}">&#10004; Completed</span>
+                                    <span th:if="${request.status == 'CANCELLED'}">&#10006; Cancelled</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+    </footer>
+</body>
+
+</html>

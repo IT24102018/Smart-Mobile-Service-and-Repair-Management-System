@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Repair Requests - Admin</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin-warranty.css">
+</head>
+
+<body class="auth-page">
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix Admin</h1>
+        </div>
+        <nav>
+            <a th:href="@{/admin/dashboard}">Dashboard</a>
+            <a th:href="@{/admin/repair-requests}">Repair Requests</a>
+            <a th:href="@{/}">View Site</a>
+            <a th:href="@{/admin/logout}">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="admin-warranty-container">
+            <div class="admin-header admin-page-hero">
+                <div>
+                    <p class="page-kicker">Customer Services</p>
+                    <h2>&#128295; Mobile Repair Requests</h2>
+                    <p>Review incoming repair jobs, assign technicians, and move requests through the workflow.</p>
+                </div>
+                <div class="hero-chip">Live queue</div>
+            </div>
+
+            <div class="service-stats repair-stats">
+                <div class="service-stat-card blue">
+                    <span class="service-stat-number" th:text="${repairRequestCount != null ? repairRequestCount : 0}">0</span>
+                    <span class="service-stat-label">Total Requests</span>
+                </div>
+                <div class="service-stat-card orange">
+                    <span class="service-stat-number" th:text="${pendingRepairCount != null ? pendingRepairCount : 0}">0</span>
+                    <span class="service-stat-label">Pending Reviews</span>
+                </div>
+                <div class="service-stat-card green">
+                    <span class="service-stat-number" th:text="${activeRepairCount != null ? activeRepairCount : 0}">0</span>
+                    <span class="service-stat-label">Active Repairs</span>
+                </div>
+                <div class="service-stat-card slate">
+                    <span class="service-stat-number" th:text="${completedRepairCount != null ? completedRepairCount : 0}">0</span>
+                    <span class="service-stat-label">Completed Jobs</span>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(requests)}" class="no-requests modern-empty-state">
+                <div class="no-requests-icon">&#128223;</div>
+                <h3>No Repair Requests Yet</h3>
+                <p>New repair requests will appear here as soon as customers submit them.</p>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(requests)}" class="requests-table-container modern-table-shell">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Customer</th>
+                            <th>Contact</th>
+                            <th>Device</th>
+                            <th>Problem Description</th>
+                            <th>Status</th>
+                            <th>Timeline</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="request : ${requests}"
+                            th:class="${'status-' + #strings.toLowerCase(request.status)}">
+                            <td class="id-cell">#<span th:text="${request.id}"></span></td>
+                            <td class="customer-cell">
+                                <strong th:text="${request.customerName}"></strong>
+                                <span class="cell-subtext" th:text="${request.customerEmail}"></span>
+                            </td>
+                            <td class="contact-cell">
+                                <span th:text="${request.contactNumber}"></span>
+                            </td>
+                            <td class="device-cell">
+                                <strong th:text="${request.mobileBrand + ' ' + request.mobileModel}"></strong>
+                                <span class="cell-subtext">Year: <span th:text="${request.year}"></span></span>
+                                <a th:if="${request.imagePath != null}" th:href="${request.imagePath}" target="_blank"
+                                    class="btn-mini btn-view-image">View Image</a>
+                            </td>
+                            <td class="description-cell">
+                                <div class="clamped-text" th:title="${request.problemDescription}"
+                                    th:text="${request.problemDescription}"></div>
+                            </td>
+                            <td class="status-cell">
+                                <span th:class="${'request-status status-' + #strings.toLowerCase(request.status)}"
+                                    th:text="${request.status}"></span>
+                                <span th:if="${request.assignedTechnician}" class="assignment-chip">
+                                    &#128104;&#8205;&#128295; <span th:text="${request.assignedTechnician}"></span>
+                                </span>
+                            </td>
+                            <td class="timeline-cell">
+                                <span th:text="${#temporals.format(request.requestDate, 'yyyy-MM-dd')}"></span>
+                                <span class="cell-subtext" th:text="${#temporals.format(request.requestDate, 'HH:mm')}"></span>
+                            </td>
+                            <td class="actions-cell">
+                                <div th:if="${request.status == 'PENDING'}" class="action-stack">
+                                    <a th:href="@{/admin/repair-approve/{id}(id=${request.id})}"
+                                        class="btn-action btn-approve-action">Approve</a>
+                                    <a th:href="@{/admin/repair-reject/{id}(id=${request.id})}"
+                                        class="btn-action btn-reject-action">Reject</a>
+                                </div>
+
+                                <div th:if="${request.status != 'COMPLETED' && request.status != 'CANCELLED' && request.status != 'REJECTED'}"
+                                    class="assign-card">
+                                    <form th:action="@{/admin/repair-requests/update}" method="post"
+                                        class="assign-form">
+                                        <input type="hidden" name="requestId" th:value="${request.id}">
+                                        <input type="hidden" name="status" th:value="${request.status}">
+                                        <label class="assign-label">Assign technician</label>
+                                        <select name="assignedTechnician" onchange="this.form.submit()"
+                                            class="assign-select">
+                                            <option value="">-- Unassigned --</option>
+                                            <option value="Screen Technician"
+                                                th:selected="${request.assignedTechnician == 'Screen Technician'}">
+                                                Screen Tech</option>
+                                            <option value="Battery Technician"
+                                                th:selected="${request.assignedTechnician == 'Battery Technician'}">
+                                                Battery Tech</option>
+                                            <option value="Software Technician"
+                                                th:selected="${request.assignedTechnician == 'Software Technician'}">
+                                                Software Tech</option>
+                                            <option value="Hardware Technician"
+                                                th:selected="${request.assignedTechnician == 'Hardware Technician'}">
+                                                Hardware Tech</option>
+                                        </select>
+                                        <small class="assign-help">Changes save automatically when you choose a technician.</small>
+                                    </form>
+                                </div>
+
+                                <span
+                                    th:if="${request.status == 'COMPLETED' || request.status == 'CANCELLED' || request.status == 'REJECTED'}"
+                                    class="completed modern-completed">
+                                    <span th:if="${request.status == 'COMPLETED'}">&#10004; Completed</span>
+                                    <span th:if="${request.status == 'CANCELLED'}">&#10006; Cancelled</span>
+                                    <span th:if="${request.status == 'REJECTED'}">&#10006; Rejected</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+    </footer>
+</body>
+
+</html>
