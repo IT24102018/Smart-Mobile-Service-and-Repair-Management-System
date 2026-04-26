@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Warranty Requests - Admin</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin-warranty.css">
+</head>
+<body class="auth-page">
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix Admin</h1>
+    </div>
+    <nav>
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a th:href="@{/warranty/admin/requests}">Warranty Requests</a>
+        </nav>
+</header>
+
+<main>
+    <div class="admin-warranty-container">
+        <div class="admin-header">
+            <h2>&#128737; Warranty Extension Requests</h2>
+            <p>Manage customer warranty extension requests</p>
+        </div>
+
+        <div th:if="${#lists.isEmpty(requests)}" class="no-requests">
+            <div class="no-requests-icon">&#128223;</div>
+            <h3>No Warranty Requests Yet</h3>
+            <p>There are no warranty extension requests at the moment.</p>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(requests)}" class="requests-table-container">
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Customer</th>
+                        <th>Order</th>
+                        <th>Current Warranty</th>
+                        <th>Extension</th>
+                        <th>Total Warranty</th>
+                        <th>Fee</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="request : ${requests}" 
+                        th:class="${'status-' + #strings.toLowerCase(request.requestStatus)}">
+                        <td>#<span th:text="${request.id}"></span></td>
+                        <td>
+                            <strong th:text="${request.customerName}"></strong>
+                            <br>
+                            <small th:text="${request.customerEmail}"></small>
+                        </td>
+                        <td>#<span th:text="${request.orderId}"></span></td>
+                        <td><span th:text="${request.currentWarrantyMonths}"></span> months</td>
+                        <td class="extension-highlight">+<span th:text="${request.requestedExtensionMonths}"></span> months</td>
+                        <td><strong><span th:text="${request.totalWarrantyMonths}"></span> months</strong></td>
+                        <td class="fee-amount">Rs. <span th:text="${request.extensionFee}"></span></td>
+                        <td>
+                            <span th:text="${request.paymentMethod}"></span>
+                            <br>
+                                <span th:class="${'payment-status status-' + #strings.toLowerCase(request.paymentStatus)}" 
+                                  th:text="${request.paymentStatus}"></span>
+                        </td>
+                        <td>
+                                <span th:class="${'request-status status-' + #strings.toLowerCase(request.requestStatus)}" 
+                                  th:text="${request.requestStatus}"></span>
+                            <br>
+                            <small th:if="${request.adminDecision}" th:text="${request.adminDecision}"></small>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(request.requestDate, 'yyyy-MM-dd')}"></span>
+                            <br>
+                            <small th:text="${#temporals.format(request.requestDate, 'HH:mm')}"></small>
+                        </td>
+                        <td>
+                            <div th:if="${request.requestStatus == 'PENDING'}" class="action-buttons">
+                                <form th:action="@{/warranty/admin/approve/{id}(id=${request.id})}" method="get" style="display: inline;">
+                                    <input type="hidden" name="decision" value="Approved - Payment confirmed">
+                                    <button type="submit" class="btn-approve" title="Approve Request">&#10004;</button>
+                                </form>
+                                <form th:action="@{/warranty/admin/reject/{id}(id=${request.id})}" method="get" style="display: inline;">
+                                    <input type="hidden" name="decision" value="Rejected - Reason not specified">
+                                    <button type="submit" class="btn-reject" title="Reject Request">&#10006;</button>
+                                </form>
+                            </div>
+                            <span th:if="${request.requestStatus != 'PENDING'}" class="completed">
+                                <span th:if="${request.requestStatus == 'APPROVED'}">&#10004; Approved</span>
+                                <span th:if="${request.requestStatus == 'REJECTED'}">&#10006; Rejected</span>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+</footer>
+</body>
+</html>
+

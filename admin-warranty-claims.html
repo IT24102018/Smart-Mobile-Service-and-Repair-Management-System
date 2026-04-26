@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Warranty Claims - Admin</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin-warranty.css">
+</head>
+
+<body class="auth-page">
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix Admin</h1>
+        </div>
+        <nav>
+            <a th:href="@{/admin/dashboard}">Dashboard</a>
+            <a th:href="@{/warranty-claim/admin/claims}">Warranty Claims</a>
+            <a th:href="@{/}">View Site</a>
+            <a th:href="@{/admin/logout}">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="admin-warranty-container">
+            <div class="admin-header">
+                <h2>&#128736; Warranty Claims Management</h2>
+                <p>Review and process customer warranty claims</p>
+            </div>
+
+            <div th:if="${#lists.isEmpty(claims)}" class="no-requests">
+                <div class="no-requests-icon">&#128223;</div>
+                <h3>No Warranty Claims Yet</h3>
+                <p>There are no active warranty claims to review at the moment.</p>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(claims)}" class="requests-table-container">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Customer</th>
+                            <th>Order</th>
+                            <th>Product</th>
+                            <th>Issue Description</th>
+                            <th>Status</th>
+                            <th>Claim Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="claim : ${claims}" th:class="${'status-' + #strings.toLowerCase(claim.status)}">
+                            <td>#<span th:text="${claim.id}"></span></td>
+                            <td>
+                                <strong th:text="${claim.customerName}"></strong>
+                                <br>
+                                <small th:text="${claim.customerEmail}"></small>
+                            </td>
+                            <td>#<span th:text="${claim.orderId}"></span></td>
+                            <td><span th:text="${claim.productName}"></span></td>
+                            <td>
+                                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                    th:title="${claim.issueDescription}" th:text="${claim.issueDescription}">
+                                    Issue
+                                </div>
+                            </td>
+                            <td>
+                                <span th:class="${'request-status status-' + #strings.toLowerCase(claim.status)}"
+                                    th:text="${claim.status}"></span>
+                                <br>
+                                <small th:if="${claim.adminNotes}" th:text="${claim.adminNotes}"></small>
+                            </td>
+                            <td>
+                                <span th:text="${#temporals.format(claim.claimDate, 'yyyy-MM-dd')}"></span>
+                                <br>
+                                <small th:text="${#temporals.format(claim.claimDate, 'HH:mm')}"></small>
+                            </td>
+                            <td>
+                                <div th:if="${claim.status == 'PENDING'}" class="action-buttons">
+                                    <form th:action="@{/warranty-claim/admin/update}" method="post"
+                                        style="display:inline;">
+                                        <input type="hidden" name="claimId" th:value="${claim.id}">
+                                        <input type="hidden" name="status" value="APPROVED">
+                                        <input type="hidden" name="adminNotes" value="Approved for repair/replacement">
+                                        <button type="submit" class="btn-approve"
+                                            title="Approve Claim">&#10004;</button>
+                                    </form>
+                                    <form th:action="@{/warranty-claim/admin/update}" method="post"
+                                        style="display:inline;">
+                                        <input type="hidden" name="claimId" th:value="${claim.id}">
+                                        <input type="hidden" name="status" value="REJECTED">
+                                        <input type="hidden" name="adminNotes" value="Warranty void or expired">
+                                        <button type="submit" class="btn-reject" title="Reject Claim">&#10006;</button>
+                                    </form>
+                                </div>
+                                <div th:if="${claim.status == 'APPROVED'}" class="action-buttons">
+                                    <form th:action="@{/warranty-claim/admin/update}" method="post"
+                                        style="display:inline;">
+                                        <input type="hidden" name="claimId" th:value="${claim.id}">
+                                        <input type="hidden" name="status" value="REPAIRED">
+                                        <input type="hidden" name="adminNotes" value="Device repaired and returned">
+                                        <button type="submit" class="btn-approve" style="background-color: #2196F3;"
+                                            title="Mark as Repaired">&#10004; Repaired</button>
+                                    </form>
+                                </div>
+                                <span th:if="${claim.status == 'REPAIRED' || claim.status == 'REJECTED'}"
+                                    class="completed">
+                                    <span th:if="${claim.status == 'REPAIRED'}">&#10004; Repaired</span>
+                                    <span th:if="${claim.status == 'REJECTED'}">&#10006; Rejected</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        
+        
+    </footer>
+</body>
+
+</html>
