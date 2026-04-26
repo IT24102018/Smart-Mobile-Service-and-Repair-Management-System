@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body class="auth-page">
+    <!-- HEADER WITH LOGO AND NAVIGATION -->
+    <header>
+        <div class="logo">
+            <!-- LOGO - You'll add your logo image later -->
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix</h1>
+        </div>
+        <nav>
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/contact}">Contact Us</a>
+            <a th:href="@{/users/register}">Register</a>
+            <a th:href="@{/users/login}">Login</a>
+        <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="auth-container">
+            <div class="auth-form">
+                <h2>Login to Your Account</h2>
+                <p>Welcome back! Please enter your details.</p>
+                <p th:if="${success}" class="success-message">[[${success}]]</p>
+                <p th:if="${error}" class="error-message">[[${error}]]</p>
+                <form th:action="@{/users/login}" method="post">
+                    <div class="form-group">
+                        <input type="email" name="email" th:value="${email}" placeholder="Email Address" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <div class="auth-links">
+                    <p>Don't have an account? <a th:href="@{/users/register}" class="auth-link">Register here</a></p>
+                    <p>Technical Staff? <a th:href="@{/technician/login}" class="auth-link">Login here</a></p>
+                </div>
+                <p th:if="${error}" class="error-message">[[${error}]]</p>
+            </div>
+            <div class="auth-visual">
+                <h3>Back to Mobix!</h3>
+                <p>Sign in to access your personalized mobile shopping experience. Manage orders, track deliveries, and
+                    get exclusive deals.</p>
+                <div class="feature-highlight">
+                    <div class="feature-item">
+                        <span>📱</span>
+                        <h4>Your Orders</h4>
+                    </div>
+                    <div class="feature-item">
+                        <span>⚡</span>
+                        <h4>Quick Access</h4>
+                    </div>
+                    <div class="feature-item">
+                        <span>🎁</span>
+                        <h4>Special Offers</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</body>
+
+</html>

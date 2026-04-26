@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="auth-page">
+<!-- HEADER WITH LOGO AND NAVIGATION -->
+<header>
+    <div class="logo">
+        <!-- LOGO - You'll add your logo image later -->
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix</h1>
+    </div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/contact}">Contact Us</a>
+        <a th:href="@{/users/register}">Register</a>
+        <a th:href="@{/users/login}">Login</a>
+    <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+</header>
+
+<main>
+    <div class="auth-container">
+        <div class="auth-form">
+            <h2>Create Account</h2>
+            <p>Join our mobile shop community today!</p>
+            <p th:if="${success}" class="success-message">[[${success}]]</p>
+            <p th:if="${error}" class="error-message">[[${error}]]</p>
+            <form th:action="@{/users/register}" method="post" th:object="${user}">
+                <div class="form-group">
+                    <input type="text" th:field="*{name}" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" th:field="*{email}" placeholder="Email Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" th:field="*{phone}" placeholder="Phone Number" pattern="[0-9]{10}" maxlength="10" title="Phone number must be exactly 10 digits" required>
+                </div>
+                <div class="form-group">
+                    <textarea th:field="*{address}" placeholder="Address" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="password" th:field="*{password}" placeholder="Password" pattern="(?=.*[A-Za-z])(?=.*[0-9]).{8,}" title="Password must be at least 8 characters and include letters and numbers" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+            <div class="auth-links">
+                <p>Already have an account? <a th:href="@{/users/login}" class="auth-link">Login here</a></p>
+            </div>
+        </div>
+        <div class="auth-visual">
+            <h3>Welcome to Mobix!</h3>
+            <p>Experience the best mobile shopping with us. Register now to enjoy exclusive offers and deals.</p>
+            <div class="feature-highlight">
+                <div class="feature-item">
+                    <span>📱</span>
+                    <h4>Latest Models</h4>
+                </div>
+                <div class="feature-item">
+                    <span>⚡</span>
+                    <h4>Fast Delivery</h4>
+                </div>
+                <div class="feature-item">
+                    <span>💯</span>
+                    <h4>Quality Guarantee</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

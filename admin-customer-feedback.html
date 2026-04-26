@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Customer Feedback - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body class="auth-page">
+    <header>
+        <div class="logo">
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix Admin</h1>
+        </div>
+        <nav>
+            <a th:href="@{/admin/dashboard}">Dashboard</a>
+            <a th:href="@{/admin/users}">User Management</a>
+            <a th:href="@{/admin/product/add}">Add Product</a>
+            <a th:href="@{/admin/customer-services}">Customer Services</a>
+            <a th:href="@{/admin/customer-feedback}">Customer Feedback</a>
+            <a th:href="@{/}">View Site</a>
+            <a th:href="@{/admin/logout}">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="admin-container">
+            <div class="admin-header">
+                <h2>&#11088; Customer Feedback</h2>
+                <p>Welcome, <span th:text="${adminEmail}">Admin</span></p>
+            </div>
+
+            <div class="feedback-actions">
+                <a th:href="@{/admin/dashboard}" class="btn-edit">Back to Dashboard</a>
+            </div>
+
+            <div class="products-table-container feedback-table-container">
+                <h3>All Customer Feedback Details</h3>
+                <p class="feedback-subtitle">Review type, rating, comments, and uploaded images</p>
+
+                <table class="admin-table" th:if="${!#lists.isEmpty(reviews)}">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Type</th>
+                            <th>Technician</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Image</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="review : ${reviews}">
+                            <td th:text="${review.id}">1</td>
+                            <td th:text="${review.userEmail}">user@email.com</td>
+                            <td>
+                                <span class="category-badge"
+                                    th:classappend="${review.feedbackType == 'TECHNICIAN'} ? 'accessory' : 'phone'"
+                                    th:text="${review.feedbackType}">GENERAL</span>
+                            </td>
+                            <td th:text="${review.technicianName != null && !#strings.isEmpty(review.technicianName) ? review.technicianName : '-'}">-</td>
+                            <td class="feedback-rating" th:text="${review.rating} + '/5'">5/5</td>
+                            <td class="feedback-comment" th:text="${review.comment}">Great service.</td>
+                            <td>
+                                <a th:if="${review.imagePath != null && !#strings.isEmpty(review.imagePath)}"
+                                    th:href="${review.imagePath}" target="_blank" class="btn-edit">View</a>
+                                <span th:if="${review.imagePath == null || #strings.isEmpty(review.imagePath)}">-</span>
+                            </td>
+                            <td th:text="${review.reviewDate != null ? #temporals.format(review.reviewDate, 'yyyy-MM-dd HH:mm') : '-'}">2026-01-01 10:00</td>
+                            <td class="actions">
+                                <a th:href="@{/admin/feedback/delete/{id}(id=${review.id})}" class="btn-delete"
+                                    onclick="return confirm('Delete this feedback?');">Delete</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="empty-state" th:if="${#lists.isEmpty(reviews)}">No customer feedbacks submitted yet.</p>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

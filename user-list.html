@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User List - Mobix Admin</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<!-- HEADER WITH LOGO AND NAVIGATION -->
+<header>
+    <div class="logo">
+        <!-- LOGO - You'll add your logo image later -->
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix</h1>
+    </div>
+    <nav>
+        <a th:href="@{/users/}">Home</a>
+        <a th:href="@{/users/register}">Register</a>
+        <a th:href="@{/users/login}">Login</a>
+    <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+</header>
+
+<!-- MAIN CONTENT -->
+<main>
+    <h2>Manage Users</h2>
+    
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.phone}"></td>
+                <td th:text="${user.role}"></td>
+                <td th:text="${user.createdAt}"></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="back-link">
+        <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+</footer>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Services - Mobix Admin</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/admin-customer-services.css">
+</head>
+
+<body class="auth-page">
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+            <h1>Mobix Admin</h1>
+        </div>
+        <nav>
+            <a th:href="@{/admin/dashboard}">Dashboard</a>
+            <a th:href="@{/admin/users}">User Management</a>
+            <a th:href="@{/admin/product/add}">Add Product</a>
+            <a th:href="@{/admin/customer-services}">Customer Services</a>
+            <a th:href="@{/}">View Site</a>
+            <a th:href="@{/admin/logout}">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="admin-container">
+            <div class="admin-header">
+                <h2>&#128218; Customer Services - Sold Items History</h2>
+                <p>Welcome, <span th:text="${adminEmail}">Admin</span></p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="service-stats">
+                <div class="service-stat-card">
+                    <span class="service-stat-number" th:text="${#lists.size(soldItems)}">0</span>
+                    <span class="service-stat-label">Total Sold Items</span>
+                </div>
+                <div class="service-stat-card blue">
+                    <span class="service-stat-number"
+                        th:text="${#lists.size(soldItems.?[orderStatus == 'CONFIRMED'])}">0</span>
+                    <span class="service-stat-label">Confirmed Orders</span>
+                </div>
+                <div class="service-stat-card green">
+                    <span class="service-stat-number"
+                        th:text="${#lists.size(soldItems.?[orderStatus == 'DELIVERED'])}">0</span>
+                    <span class="service-stat-label">Delivered Orders</span>
+                </div>
+                <div class="service-stat-card orange" th:if="${warrantyRequests != null}">
+                    <span class="service-stat-number"
+                        th:text="${#lists.size(warrantyRequests.?[requestStatus == 'PENDING'])}">0</span>
+                    <span class="service-stat-label">Pending Warranty Requests</span>
+                </div>
+            </div>
+
+            <!-- Warranty Requests Section -->
+            <div class="warranty-requests-container" th:if="${warrantyRequests != null}">
+                <h3>&#128196; Warranty Extension Requests</h3>
+
+                <div th:if="${#lists.size(warrantyRequests) == 0}" class="no-requests-message">
+                    <p>&#128221; No warranty requests yet.</p>
+                </div>
+
+                <div th:if="${#lists.size(warrantyRequests.?[requestStatus == 'PENDING']) > 0}"
+                    class="pending-requests">
+                    <h4>Pending Requests</h4>
+                    <table class="warranty-requests-table">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Customer Name</th>
+                                <th>Email</th>
+                                <th>Product</th>
+                                <th>Current Warranty</th>
+                                <th>Requested Extension</th>
+                                <th>Total Warranty</th>
+                                <th>Fee</th>
+                                <th>Request Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="request : ${warrantyRequests}" th:if="${request.requestStatus == 'PENDING'}">
+                                <td th:text="${'#' + request.id}">#1</td>
+                                <td th:text="${request.customerName}">Customer Name</td>
+                                <td th:text="${request.customerEmail}">email@example.com</td>
+                                <td th:text="${request.productName}">Product Name</td>
+                                <td><span th:text="${request.currentWarrantyMonths}"></span> Months</td>
+                                <td>+<span th:text="${request.requestedExtensionMonths}"></span> Months</td>
+                                <td><strong><span th:text="${request.totalWarrantyMonths}"></span> Months</strong></td>
+                                <td class="fee-amount">Rs. <span th:text="${request.extensionFee}">0.00</span></td>
+                                <td th:text="${#temporals.format(request.requestDate, 'yyyy-MM-dd HH:mm')}">2025-01-01
+                                    12:00</td>
+                                <td class="action-buttons">
+                                    <form th:action="@{/warranty/admin/approve/{id}(id=${request.id})}" method="get"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn-approve" title="Approve">&#10004;
+                                            Approve</button>
+                                    </form>
+                                    <form th:action="@{/warranty/admin/reject/{id}(id=${request.id})}" method="get"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn-reject" title="Reject">&#10006; Reject</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${#lists.size(warrantyRequests.?[requestStatus != 'PENDING']) > 0}"
+                    class="processed-requests">
+                    <h4>Processed Requests</h4>
+                    <table class="warranty-requests-table">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Customer Name</th>
+                                <th>Product</th>
+                                <th>Extension</th>
+                                <th>Status</th>
+                                <th>Decision</th>
+                                <th>Decision Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="request : ${warrantyRequests}" th:if="${request.requestStatus != 'PENDING'}">
+                                <td th:text="${'#' + request.id}">#1</td>
+                                <td th:text="${request.customerName}">Customer Name</td>
+                                <td th:text="${request.productName}">Product Name</td>
+                                <td>+<span th:text="${request.requestedExtensionMonths}"></span> Months</td>
+                                <td>
+                                    <span th:if="${request.requestStatus == 'APPROVED'}"
+                                        class="status-badge status-approved">Approved</span>
+                                    <span th:if="${request.requestStatus == 'REJECTED'}"
+                                        class="status-badge status-rejected">Rejected</span>
+                                </td>
+                                <td th:text="${request.adminDecision}">Decision</td>
+                                <td th:text="${#temporals.format(request.decisionDate, 'yyyy-MM-dd HH:mm')}">2025-01-01
+                                    12:00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sold Items Table -->
+            <div class="sold-items-table-container" th:if="${#lists.size(soldItems) > 0}">
+                <h3>All Sold Items with Customer Details</h3>
+                <table class="sold-items-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Product Name</th>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Sell Date</th>
+                            <th>Sell Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${soldItems}">
+                            <td th:text="${'#' + item.orderId}">#1</td>
+                            <td class="product-name" th:text="${item.productName}">Product Name</td>
+                            <td class="customer-name" th:text="${item.customerName}">Customer Name</td>
+                            <td class="customer-email" th:text="${item.customerEmail}">email@example.com</td>
+                            <td class="customer-phone" th:text="${item.customerPhone}">+1 234 567 8900</td>
+                            <td th:text="${item.quantity}">1</td>
+                            <td class="total-amount">Rs. <span th:text="${item.totalAmount}">0.00</span></td>
+                            <td>
+                                <span th:class="${'status-badge status-' + #strings.toLowerCase(item.orderStatus)}"
+                                    th:text="${item.orderStatus}">STATUS</span>
+                            </td>
+                            <td class="sell-date" th:text="${#temporals.format(item.orderDate, 'yyyy-MM-dd')}">
+                                2025-01-01</td>
+                            <td class="sell-time" th:text="${#temporals.format(item.orderDate, 'HH:mm')}">12:00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- No Data Message -->
+            <div class="no-data" th:if="${#lists.size(soldItems) == 0}">
+                <p>&#128221; No sold items found yet.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+    </footer>
+</body>
+
+</html>
