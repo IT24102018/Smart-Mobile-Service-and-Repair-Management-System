@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Repair Request Submitted - Mobix</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="auth-page">
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <img src="/images/logo.svg" alt="Mobix Logo" width="50">
+        <h1>Mobix</h1>
+    </div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/users/dashboard}">Dashboard</a>
+        <a th:href="@{/shop}">Shop</a>
+        <a th:href="@{/contact}">Contact Us</a>
+        <a th:href="@{/users/logout}">Logout</a>
+    <a th:href="@{/reviews/add}">Feedback</a>
+        </nav>
+</header>
+
+<main>
+    <div class="repair-confirmation-container">
+        <div class="repair-confirmation-card">
+            <div class="success-icon">&#9989;</div>
+            <h2>Repair Request Submitted!</h2>
+            <p class="confirmation-message">Your mobile repair request has been successfully submitted. We will review your request and contact you shortly.</p>
+
+            <div class="request-details">
+                <h3>Request Details</h3>
+                <div class="detail-row">
+                    <span>Request ID:</span>
+                    <strong>#<span th:text="${request.id}">000</span></strong>
+                </div>
+                <div class="detail-row">
+                    <span>Customer Name:</span>
+                    <strong th:text="${request.customerName}">Name</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Contact Number:</span>
+                    <strong th:text="${request.contactNumber}">Phone</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Mobile Brand:</span>
+                    <strong th:text="${request.mobileBrand}">Brand</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Mobile Model:</span>
+                    <strong th:text="${request.mobileModel}">Model</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Year:</span>
+                    <strong th:text="${request.year}">Year</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Status:</span>
+                    <strong class="status-pending" th:text="${request.status}">PENDING</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Submitted:</span>
+                    <strong th:text="${#temporals.format(request.requestDate, 'dd MMM yyyy HH:mm')}">Date</strong>
+                </div>
+            </div>
+
+            <div class="problem-section" th:if="${request.problemDescription != null}">
+                <h3>Problem Description</h3>
+                <p class="problem-text" th:text="${request.problemDescription}">Description</p>
+            </div>
+
+            <div class="image-section" th:if="${request.imagePath != null}">
+                <h3>Uploaded Image</h3>
+                <img th:src="${request.imagePath}" alt="Repair Image" class="repair-image">
+            </div>
+
+            <div class="next-steps">
+                <h3>What Happens Next?</h3>
+                <ul>
+                    <li>&#9989; Our team will review your repair request within 24 hours</li>
+                    <li>&#128222; We will contact you at <strong th:text="${request.contactNumber}">phone</strong> to discuss the repair</li>
+                    <li>&#128176; You will receive a cost estimate for the repair</li>
+                    <li>&#128295; Once approved, we will proceed with the repair</li>
+                </ul>
+            </div>
+
+            <div class="confirmation-actions">
+                <a th:href="@{/repair}" class="btn-new-request">Submit Another Request</a>
+                <a th:href="@{/users/dashboard}" class="btn-dashboard">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+</footer>
+</body>
+</html>
+
